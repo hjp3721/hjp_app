@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>个人专属App</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">个人专属App</div>
+  <div class="topbar-right">
+    <span id="todayLabel" class="today-label"></span>
+    <button id="remindBtn" class="remind-badge hidden" title="有到期日程" type="button">🔔</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar">
+    <a href="#/home" data-route="home" class="nav-item">首页总览</a>
+    <a href="#/plan" data-route="plan" class="nav-item">今日计划</a>
+    <a href="#/fitness" data-route="fitness" class="nav-item">运动健身</a>
+    <a href="#/reading" data-route="reading" class="nav-item">读书学习</a>
+    <a href="#/business" data-route="business" class="nav-item">业务开展</a>
+    <a href="#/schedule" data-route="schedule" class="nav-item">日程提醒</a>
+    <a href="#/settings" data-route="settings" class="nav-item">数据设置</a>
+  </nav>
+  <main id="view" class="view"></main>
+</div>
+<div id="toastContainer" class="toast-container"></div>
+<div id="modalRoot"></div>
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
