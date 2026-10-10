@@ -20,3 +20,24 @@ test('界面背景为清新绿色风格', () => {
   // 边框带绿色倾向
   assert.match(css, /--border\s*:\s*#dce9df\s*;/, '边框应为柔和绿色 #dce9df');
 });
+
+test('7 个模块按钮采用不同颜色的透明按钮', () => {
+  // 每个模块用 rgba 半透明背景（透明按钮）
+  const routes = {
+    home: '16,185,129', plan: '46,125,50', fitness: '234,88,12',
+    reading: '37,99,235', business: '180,83,9', schedule: '220,38,38', settings: '71,85,105',
+  };
+  for (const [route, rgba] of Object.entries(routes)) {
+    // 基准透明背景
+    assert.ok(css.includes(`[data-route="${route}"] { background: rgba(${rgba},.16); }`),
+      `模块 ${route} 应有 rgba(${rgba},.16) 透明背景`);
+    // hover 加深、active 更明显
+    assert.ok(css.includes(`[data-route="${route}"]:hover { background: rgba(${rgba},.26); }`),
+      `模块 ${route} hover 应加深为 .26`);
+    assert.ok(css.includes(`[data-route="${route}"].active { background: rgba(${rgba},.32);`),
+      `模块 ${route} active 应加深为 .32`);
+  }
+  // 7 个路由颜色各不相同
+  const values = Object.values(routes);
+  assert.strictEqual(new Set(values).size, 7, '7 个模块颜色应各不相同');
+});
