@@ -1,12 +1,13 @@
-/* 个人专属App — 全局样式（本地桌面感，强调色用蓝绿，非紫色系） */
+/* 个人专属App — 全局样式（清新绿色风格，非紫色系） */
 :root {
-  --bg: #f4f6f8;
+  --bg: #ecf7ee;          /* 清新浅绿背景 */
+  --bg-grad: linear-gradient(160deg, #ecf7ee 0%, #dff0e3 100%);
   --card: #ffffff;
-  --border: #e2e6ea;
+  --border: #dce9df;
   --text: #1f2937;
   --muted: #6b7280;
-  --accent: #0f766e;      /* 蓝绿 */
-  --accent-soft: #ccfbf1;
+  --accent: #2e7d32;      /* 深绿主色 */
+  --accent-soft: #d7f2e0;
   --danger: #dc2626;
   --danger-soft: #fee2e2;
   --ok: #15803d;
@@ -17,7 +18,7 @@
 html, body { height: 100%; margin: 0; }
 body {
   font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
-  background: var(--bg);
+  background: var(--bg-grad);
   color: var(--text);
   font-size: 14px;
 }
