@@ -131,6 +131,35 @@ test('todaySchedules 返回今日未完成日程', () => {
   assert.deepStrictEqual(t.map((s) => s.id), ['x']);
 });
 
+test('planCalendar 生成当月每日计划完成情况', () => {
+  const plans = {
+    '2026-10-05': [{ done: true }, { done: false }],             // 2 项，1 完成 -> 50%
+    '2026-10-09': [{ done: true }],                              // 1 项，1 完成 -> 100%
+    '2026-11-01': [{ done: false }],                             // 下月，不计入
+  };
+  const cal = core.planCalendar(plans, '2026-10-09');
+  assert.strictEqual(cal.range.start, '2026-10-01');
+  assert.strictEqual(cal.range.end, '2026-10-31');
+  assert.deepStrictEqual(cal.days['2026-10-05'], { total: 2, done: 1, rate: 50 });
+  assert.deepStrictEqual(cal.days['2026-10-09'], { total: 1, done: 1, rate: 100 });
+  assert.deepStrictEqual(cal.days['2026-10-03'], { total: 0, done: 0, rate: 0 }); // 无任务日
+  // 下月数据不计入当月
+  assert.strictEqual(cal.days['2026-11-01'], undefined);
+  // 当月汇总
+  assert.strictEqual(cal.monthTotal, 3);
+  assert.strictEqual(cal.monthDone, 2);
+  assert.strictEqual(cal.monthRate, Math.round((2 / 3) * 100));
+});
+
+test('planCalendar 空数据返回全零当月', () => {
+  const cal = core.planCalendar({}, '2026-10-09');
+  assert.strictEqual(cal.monthTotal, 0);
+  assert.strictEqual(cal.monthDone, 0);
+  assert.strictEqual(cal.monthRate, 0);
+  // 覆盖整个月（10月有31天）
+  assert.strictEqual(Object.keys(cal.days).length, 31);
+});
+
 test('genClientId 生成非空唯一 id', () => {
   const a = core.genClientId();
   const b = core.genClientId();

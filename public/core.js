@@ -71,6 +71,28 @@
     });
   }
 
+  // 当月每日计划完成情况（用于日历图表记录历史计划）
+  // plans: { "YYYY-MM-DD": [...] } -> { days: {date:{total,done,rate}}, monthTotal, monthDone, monthRate, range }
+  function planCalendar(plans, dateStr) {
+    const { start, end } = monthRange(dateStr);
+    const days = {};
+    let monthTotal = 0, monthDone = 0;
+    for (let d = start; d <= end; d = addDays(d, 1)) {
+      const arr = (plans && plans[d]) || [];
+      const done = arr.filter((p) => p.done).length;
+      days[d] = { total: arr.length, done, rate: arr.length ? Math.round((done / arr.length) * 100) : 0 };
+      monthTotal += arr.length;
+      monthDone += done;
+    }
+    return {
+      days,
+      monthTotal,
+      monthDone,
+      monthRate: monthTotal ? Math.round((monthDone / monthTotal) * 100) : 0,
+      range: { start, end },
+    };
+  }
+
   // ---------- 运动健身统计 ----------
   // workouts: [{date, durationMin, sets, reps}]
   function workoutStats(workouts, dateStr, period) {
@@ -147,7 +169,7 @@
 
   return {
     dateToStr, todayStr, nowTime, strToDate, addDays, weekRange, monthRange, inRange,
-    planStats, prioritySort, workoutStats, latestMetric,
+    planStats, prioritySort, planCalendar, workoutStats, latestMetric,
     readingStats, focusByDate, businessStats,
     dueSchedules, todaySchedules, genClientId,
     PRIORITIES,

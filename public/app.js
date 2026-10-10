@@ -9,6 +9,7 @@
 
   let state = null;        // 全量内存数据
   let currentPlanDate = Core.todayStr();   // 今日计划当前日期
+  let planMonth = Core.todayStr();         // 今日计划日历图表当前月份
   let scheduleCursor = null;               // 日程当前选中日期
   let fitnessTab = 'workouts';
   let readingTab = 'books';
@@ -165,6 +166,44 @@
   }
 
   // ---------- 今日计划 ----------
+  function planCalHtml() {
+    const today = Core.todayStr();
+    const [y, m] = planMonth.split('-').map(Number);
+    const first = new Date(y, m - 1, 1);
+    const lead = (first.getDay() + 6) % 7; // 周一开头
+    const daysInMonth = new Date(y, m, 0).getDate();
+    const cal = Core.planCalendar(state.plans, planMonth);
+    const cells = [];
+    for (let i = 0; i < lead; i++) cells.push('<div class="cal-cell other"></div>');
+    for (let d = 1; d <= daysInMonth; d++) {
+      const ds = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const info = cal.days[ds] || { total: 0, done: 0, rate: 0 };
+      let cls = 'cal-cell';
+      if (ds === today) cls += ' today';
+      if (ds === currentPlanDate) cls += ' selected';
+      let marker = '';
+      if (info.total > 0) {
+        const rateCls = info.rate === 100 ? 'full' : (info.rate > 0 ? 'part' : 'none');
+        marker = `<span class="pcal-dot ${rateCls}" title="${info.done}/${info.total} 完成"></span>`;
+      }
+      cells.push(`<div class="${cls}" data-action="plan-cal-select" data-date="${ds}">
+        <span class="d">${d}</span>${marker}</div>`);
+    }
+    return `
+      <div class="section-head"><h2>历史计划</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-sm" data-action="plan-cal-month" data-n="-1">‹ 上月</button>
+          <b>${y}年${String(m).padStart(2, '0')}月</b>
+          <button class="btn btn-sm" data-action="plan-cal-month" data-n="1">下月 ›</button>
+        </div></div>
+      <div class="card">
+        <div class="cal-head" style="display:grid;grid-template-columns:repeat(7,1fr)">
+          ${['一', '二', '三', '四', '五', '六', '日'].map((d) => `<div>${d}</div>`).join('')}</div>
+        <div class="calendar">${cells.join('')}</div>
+        <div class="muted" style="margin-top:8px">当月共 ${cal.monthTotal} 项计划，完成 ${cal.monthDone} 项（${cal.monthRate}%）。点击某天查看该日计划。</div>
+      </div>`;
+  }
+
   function plan() {
     const list = (state.plans[currentPlanDate] || []).slice();
     const sorted = Core.prioritySort(list);
@@ -184,6 +223,7 @@
           <b>${esc(currentPlanDate)}</b>
           <button class="btn btn-sm" data-action="plan-date" data-n="1">后一天 ›</button>
         </div></div>
+      ${planCalHtml()}
       <div class="card">
         <div style="display:flex;gap:8px;margin-bottom:12px">
           <input id="planInput" placeholder="新增任务">
@@ -553,6 +593,13 @@
 
       // 今日计划
       case 'plan-date': currentPlanDate = Core.addDays(currentPlanDate, n); render(); break;
+      case 'plan-cal-select': currentPlanDate = el.dataset.date; render(); break;
+      case 'plan-cal-month': {
+        const [yy, mm] = planMonth.split('-').map(Number);
+        const dt = new Date(yy, mm - 1 + n, 1);
+        planMonth = Core.dateToStr(dt);
+        render(); break;
+      }
       case 'plan-add': doPlanAdd(); break;
       case 'plan-toggle': {
         const p = (state.plans[currentPlanDate] || []).find((x) => x.id === id);
