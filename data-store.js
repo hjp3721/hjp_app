@@ -24,7 +24,7 @@ function defaultData() {
       orders: [],         // {id,customerId,product,amount,cost,status,date,note,platform}
       payments: [],       // {id,customerId,orderId,type,amount,date,note}
     },
-    schedules: [],        // {id,date,time,title,note,done}
+    schedules: [],        // {id,date,time,title,note,done,type:日常/重要}
     settings: { reminderOn: true },
   };
 }

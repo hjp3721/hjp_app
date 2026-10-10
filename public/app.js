@@ -112,7 +112,8 @@
     todayLabel.textContent = '今天是 ' + Core.todayStr();
     const due = Core.dueSchedules(state.schedules, Core.todayStr(), Core.nowTime());
     remindBtn.classList.toggle('hidden', !(state.settings.reminderOn && due.length));
-    remindBtn.textContent = '🔔 ' + due.length + ' 条到期';
+    const imp = Core.importantScheduleCount(state.schedules, Core.todayStr(), Core.nowTime());
+    remindBtn.textContent = `🔔 ${due.length} 条到期${imp ? `（${imp} 重要）` : ''}`;
   }
 
   // ---------- 首页总览 ----------
@@ -124,6 +125,7 @@
     const rd = Core.readingStats(state.reading.books, state.reading.focus);
     const bs = Core.businessStats(state.business.orders, state.business.payments, date, 'week');
     const due = Core.dueSchedules(state.schedules, date, Core.nowTime());
+    const importantDue = Core.importantScheduleCount(state.schedules, date, Core.nowTime());
     const notes = state.quickNotes.slice().reverse();
 
     const ring = ` <div class="home-ring"><svg width="110" height="110" viewBox="0 0 110 110">
@@ -144,8 +146,8 @@
       <a class="home-card" href="#/schedule"><div class="t">日程提醒</div><div class="v">${due.length} 条到期</div><div class="s">${state.schedules.length} 条日程</div></a>`;
 
     const dueHtml = due.length ? `<div class="card" style="border-color:var(--danger);background:var(--danger-soft)">
-      <div class="card-title">⚠️ 到期/过期日程</div>
-      ${due.map((s) => `<div class="row"><span class="row-text"><b>${esc(s.title)}</b> · ${esc(s.date)} ${esc(s.time || '')}</span>
+      <div class="card-title">⚠️ 到期/过期日程${importantDue ? `（含 ${importantDue} 条重要）` : ''}</div>
+      ${due.map((s) => `<div class="row"><span class="row-text">${s.type === '重要' ? '<span class="pill pill-hi">重要</span> ' : ''}<b>${esc(s.title)}</b> · ${esc(s.date)} ${esc(s.time || '')}</span>
         <button class="btn btn-sm btn-primary" data-action="schedule-done" data-id="${esc(s.id)}">完成</button></div>`).join('')}
     </div>` : '';
 
@@ -536,7 +538,7 @@
       cells.push(`<div class="cal-cell ${ds === today ? 'today' : ''} ${ds === cur ? 'selected' : ''}" data-action="schedule-select" data-date="${ds}">
         <span class="d">${d}</span>${withDay.has(ds) ? '<span class="dot"></span>' : ''}</div>`);
     }
-    const dayList = state.schedules.filter((s) => s.date === cur).sort((a, b) => String(a.time || '').localeCompare(String(b.time || '')));
+    const dayList = Core.sortSchedules(state.schedules.filter((s) => s.date === cur));
     return `
       <div class="section-head"><h2>日程提醒</h2>
         <div style="display:flex;gap:8px;align-items:center">
@@ -552,7 +554,7 @@
         ${dayList.length ? dayList.map((s) => `
           <div class="row ${s.done ? 'done' : ''}">
             <input type="checkbox" data-action="schedule-done" data-id="${esc(s.id)}" ${s.done ? 'checked' : ''}>
-            <span class="row-text"><b>${esc(s.title)}</b> · ${esc(s.time || '全天')}${s.note ? ' · ' + esc(s.note) : ''}</span>
+            <span class="row-text">${s.type === '重要' ? '<span class="pill pill-hi">重要</span> ' : ''}<b>${esc(s.title)}</b> · ${esc(s.time || '全天')}${s.note ? ' · ' + esc(s.note) : ''}</span>
             <button class="btn btn-sm" data-action="schedule-edit" data-id="${esc(s.id)}">编辑</button>
             <button class="btn btn-sm" data-action="schedule-del" data-id="${esc(s.id)}">删除</button>
           </div>`).join('') : empty('这一天没有日程')}
@@ -842,17 +844,20 @@
   function scheduleEdit(id) {
     const s = id ? state.schedules.find((x) => x.id === id) : null;
     const base = scheduleCursor || Core.todayStr();
+    const stype = s ? (s.type === '重要' ? '重要' : '日常') : '日常';
     openModal({
       title: s ? '编辑日程' : '新增日程',
       body: `<label>日期</label><input type="date" id="sDate" value="${esc(s ? s.date : base)}">
         <label>时间（可留空为全天）</label><input type="time" id="sTime" value="${esc(s ? s.time || '' : '09:00')}">
+        <label>类型</label><select id="sType"><option ${stype === '日常' ? 'selected' : ''}>日常</option><option ${stype === '重要' ? 'selected' : ''}>重要</option></select>
         <label>标题</label><input id="sTitle" value="${esc(s ? s.title : '')}"><label>备注</label><input id="sNote" value="${esc(s ? s.note || '' : '')}">`,
       onOk: () => {
         const title = document.getElementById('sTitle').value.trim(); if (!title) return toast('请填写标题', 'err');
         const date = document.getElementById('sDate').value;
         const time = document.getElementById('sTime').value || '';
-        if (s) { s.title = title; s.date = date; s.time = time; s.note = document.getElementById('sNote').value.trim(); }
-        else { state.schedules.push({ id: Core.genClientId(), date, time, title, note: document.getElementById('sNote').value.trim(), done: false }); }
+        const type = document.getElementById('sType').value || '日常';
+        if (s) { s.title = title; s.date = date; s.time = time; s.type = type; s.note = document.getElementById('sNote').value.trim(); }
+        else { state.schedules.push({ id: Core.genClientId(), date, time, title, note: document.getElementById('sNote').value.trim(), done: false, type }); }
         scheduleCursor = date;
         closeModal(); saveThen(); render();
       },

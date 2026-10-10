@@ -178,6 +178,22 @@
     return (schedules || []).filter((s) => s.date === dateStr && !s.done);
   }
 
+  // ---------- 日程重要性 ----------
+  const IMPORTANCE = { '重要': 0, '日常': 1 };
+  // 重要事项优先，同级按时序排序
+  function sortSchedules(list) {
+    return (list || []).slice().sort((a, b) => {
+      const ia = IMPORTANCE[a.type] !== undefined ? IMPORTANCE[a.type] : 1;
+      const ib = IMPORTANCE[b.type] !== undefined ? IMPORTANCE[b.type] : 1;
+      if (ia !== ib) return ia - ib;
+      return String(a.time || '').localeCompare(String(b.time || ''));
+    });
+  }
+  // 到期/今日未完成中，重要事项数量
+  function importantScheduleCount(schedules, dateStr, timeStr) {
+    return sortSchedules(dueSchedules(schedules, dateStr, timeStr)).filter((s) => (s.type || '日常') === '重要').length;
+  }
+
   // ---------- 客户端 id（浏览器无 randomBytes） ----------
   function genClientId() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -187,7 +203,7 @@
     dateToStr, todayStr, nowTime, strToDate, addDays, weekRange, monthRange, inRange,
     planStats, prioritySort, planCalendar, workoutStats, latestMetric,
     readingStats, focusByDate, businessStats, platformBreakdown,
-    dueSchedules, todaySchedules, genClientId,
+    dueSchedules, todaySchedules, sortSchedules, importantScheduleCount, genClientId,
     PRIORITIES,
   };
 });

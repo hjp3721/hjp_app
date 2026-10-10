@@ -178,6 +178,43 @@ test('planCalendar 空数据返回全零当月', () => {
   assert.strictEqual(Object.keys(cal.days).length, 31);
 });
 
+test('sortSchedules 重要事项优先，同级按时序', () => {
+  const list = [
+    { id: 'a', type: '日常', time: '09:00' },
+    { id: 'b', type: '重要', time: '18:00' },
+    { id: 'c', type: '日常', time: '10:00' },
+    { id: 'd', time: '07:00' }, // 无 type -> 视为日常
+    { id: 'e', type: '重要', time: '08:00' },
+  ];
+  const s = core.sortSchedules(list);
+  // 重要：e(08) 先于 b(18)；日常按字符串时序 d('07:00')<a('09:00')<c('10:00')
+  assert.deepStrictEqual(s.map((x) => x.id), ['e', 'b', 'd', 'a', 'c']);
+  // 空/空安全
+  assert.deepStrictEqual(core.sortSchedules([]), []);
+  assert.deepStrictEqual(core.sortSchedules(null), []);
+});
+
+test('importantScheduleCount 统计到期中的重要事项数量', () => {
+  const schedules = [
+    { id: 'a', date: '2026-10-09', time: '09:00', type: '重要', done: false }, // 今日已到点-重要
+    { id: 'b', date: '2026-10-09', time: '12:00', type: '日常', done: false }, // 今日未到点
+    { id: 'c', date: '2026-10-08', time: '10:00', type: '重要', done: false }, // 昨日过期-重要
+    { id: 'd', date: '2026-10-08', time: '10:00', type: '日常', done: false }, // 昨日过期-日常
+    { id: 'e', date: '2026-10-08', time: '10:00', type: '重要', done: true },  // 已完成-忽略
+  ];
+  // 10:30 时：到期 a(重要)、c(重要)、d(日常) -> 重要 2 个
+  assert.strictEqual(core.importantScheduleCount(schedules, '2026-10-09', '10:30'), 2);
+});
+
+test('dueSchedules 兼容带 type 的日程（重要/日常）', () => {
+  const schedules = [
+    { id: 'a', date: '2026-10-09', time: '09:00', type: '重要', done: false },
+    { id: 'b', date: '2026-10-09', time: '12:00', type: '日常', done: false },
+  ];
+  const due = core.dueSchedules(schedules, '2026-10-09', '10:30');
+  assert.deepStrictEqual(due.map((s) => s.id), ['a']);
+});
+
 test('genClientId 生成非空唯一 id', () => {
   const a = core.genClientId();
   const b = core.genClientId();
