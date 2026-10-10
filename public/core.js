@@ -9,6 +9,41 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   const PRIORITIES = { '高': 0, '中': 1, '低': 2 };
 
+  // ---------- 每日迎接语 ----------
+  const GREETINGS = [
+    '新的一天，新的开始，加油！',
+    '把今天的计划，一项项点亮。',
+    '先完成重要的事，再谈其他。',
+    '运动一下，精神一整天。',
+    '读几页书，遇见更好的自己。',
+    '生意往来，诚信先行。',
+    '日程安排妥当，从容过好今天。',
+    '此刻起，专注手头的一件事。',
+    '小小的进步，也值得喝彩。',
+    '今天的汗水，是明天的底气。',
+    '订单不是终点，服务才是。',
+    '给自己一个清爽的开始。',
+    '目标明确，步履从容。',
+    '保持节奏，比一时冲劲更重要。',
+    '客户满意，是最大的口碑。',
+    '一页书、一次训练，都算数。',
+    '把想做的事，变成在做的事。',
+    '记得留点时间给自己。',
+    '今天也要元气满满。',
+    '梳理优先级，再开始行动。',
+  ];
+  let _lastGreeting = null;
+  // 从池中取一句，保证相邻两次显示不同（"每次打开话语都不一样"）
+  function greeting() {
+    if (!GREETINGS.length) return '欢迎回来';
+    let idx = Math.floor(Math.random() * GREETINGS.length);
+    if (_lastGreeting != null && GREETINGS[idx] === _lastGreeting) {
+      idx = (idx + 1) % GREETINGS.length;
+    }
+    _lastGreeting = GREETINGS[idx];
+    return _lastGreeting;
+  }
+
   // ---------- 日期工具（本地时区） ----------
   function dateToStr(d) {
     const y = d.getFullYear();
@@ -204,6 +239,6 @@
     planStats, prioritySort, planCalendar, workoutStats, latestMetric,
     readingStats, focusByDate, businessStats, platformBreakdown,
     dueSchedules, todaySchedules, sortSchedules, importantScheduleCount, genClientId,
-    PRIORITIES,
+    PRIORITIES, GREETINGS, greeting,
   };
 });

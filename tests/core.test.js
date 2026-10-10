@@ -215,6 +215,21 @@ test('dueSchedules 兼容带 type 的日程（重要/日常）', () => {
   assert.deepStrictEqual(due.map((s) => s.id), ['a']);
 });
 
+test('greeting 每次打开返回不同的话语（相邻不重复）', () => {
+  // 文案池丰富且非空
+  assert.ok(core.GREETINGS.length >= 10, '迎宾语池应不少于 10 条');
+  // 返回语句必须来自文案池
+  for (let i = 0; i < 20; i++) {
+    assert.ok(core.GREETINGS.includes(core.greeting()), '返回语句应在文案池中');
+  }
+  // 连续调用相邻不同（"每次打开不一样"由算法保证）
+  const seq = [];
+  for (let i = 0; i < 50; i++) seq.push(core.greeting());
+  for (let i = 1; i < seq.length; i++) {
+    assert.notStrictEqual(seq[i], seq[i - 1], '相邻两次迎接语应不同');
+  }
+});
+
 test('genClientId 生成非空唯一 id', () => {
   const a = core.genClientId();
   const b = core.genClientId();

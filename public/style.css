@@ -191,6 +191,13 @@ tr:hover td { background: #f8fafb; }
 .progress > i { display: block; height: 100%; background: var(--accent); border-radius: 20px; }
 
 /* 首页 */
+.greet {
+  background: linear-gradient(120deg, rgba(255,255,255,.88), rgba(214,255,226,.55));
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 18px; margin-bottom: 16px;
+  font-size: 15px; font-weight: 600; color: var(--accent);
+  box-shadow: var(--shadow); backdrop-filter: blur(2px);
+}
 .home-ring { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
 .home-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
 .home-card {

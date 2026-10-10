@@ -15,6 +15,8 @@
   let readingTab = 'books';
   let businessTab = 'customers';
   let focusTimer = null, focusStart = 0, focusElapsed = 0, focusRunning = false;
+  let lastRoute = null;        // 记录上次路由，检测进入首页
+  let homeGreeting = null;     // 本次进入首页的迎接语
 
   // ---------- HTML 转义（防 XSS） ----------
   function esc(s) {
@@ -100,6 +102,9 @@
   }
   function render() {
     const route = currentRoute();
+    // 进入首页（含初始、从其他模块切回）时换一句迎接语；停留期间保持不变
+    if (route === 'home' && lastRoute !== 'home') homeGreeting = Core.greeting();
+    lastRoute = route;
     document.querySelectorAll('.nav-item').forEach((n) => n.classList.toggle('active', n.dataset.route === route));
     try {
       view.innerHTML = ({ home, plan, fitness, reading, business, schedule, settings })[route]();
@@ -160,6 +165,7 @@
         : empty('还没有备忘')}</div>`;
 
     return `
+      <div class="greet">✨ ${esc(homeGreeting || Core.greeting())}</div>
       <div class="card">${ring}</div>
       ${dueHtml}
       ${notesHtml}
