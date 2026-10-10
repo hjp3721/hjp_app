@@ -21,7 +21,7 @@ function defaultData() {
     },
     business: {
       customers: [],      // {id,name,status,phone,remark}
-      orders: [],         // {id,customerId,product,amount,status,date,note}
+      orders: [],         // {id,customerId,product,amount,cost,status,date,note,platform}
       payments: [],       // {id,customerId,orderId,type,amount,date,note}
     },
     schedules: [],        // {id,date,time,title,note,done}

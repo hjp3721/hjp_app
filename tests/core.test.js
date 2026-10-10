@@ -108,6 +108,24 @@ test('businessStats 销售额/毛利/款项（按日周月）', () => {
   assert.strictEqual(week.totalProfit, 140);
 });
 
+test('platformBreakdown 按业务平台聚合订单（日/周/月）', () => {
+  const orders = [
+    { platform: '亚马逊', amount: 100, cost: 60, status: '已完成', date: '2026-10-09' },
+    { platform: '亚马逊', amount: 50, cost: 20, status: '已完成', date: '2026-10-09' },
+    { platform: '速卖通', amount: 200, cost: 100, status: '已完成', date: '2026-10-08' },
+    { platform: '亚马逊', amount: 999, cost: 800, status: '已取消', date: '2026-10-09' }, // 取消不计
+    { amount: 30, cost: 10, status: '已完成', date: '2026-10-09' }, // 无平台 -> 其他
+  ];
+  const day = core.platformBreakdown(orders, '2026-10-09', 'day');
+  assert.deepStrictEqual(day['亚马逊'], { orderCount: 2, totalSales: 150, totalProfit: 70 });
+  assert.deepStrictEqual(day['其他'], { orderCount: 1, totalSales: 30, totalProfit: 20 });
+  assert.strictEqual(day['速卖通'], undefined); // 10-08 不在 day 范围
+  const week = core.platformBreakdown(orders, '2026-10-09', 'week');
+  assert.deepStrictEqual(week['速卖通'], { orderCount: 1, totalSales: 200, totalProfit: 100 });
+  // 空订单
+  assert.deepStrictEqual(core.platformBreakdown([], '2026-10-09', 'week'), {});
+});
+
 test('dueSchedules 识别到期与过期日程', () => {
   const schedules = [
     { id: 'a', date: '2026-10-09', time: '09:00', done: false }, // 今日已到点

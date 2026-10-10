@@ -145,6 +145,22 @@
     };
   }
 
+  // 按业务平台聚合订单（用于平台分布展示）
+  // orders: [{platform, amount, cost, status, date}] -> { 平台名: {orderCount, totalSales, totalProfit} }
+  function platformBreakdown(orders, dateStr, period) {
+    const range = period === 'day' ? { start: dateStr, end: dateStr } : (period === 'week' ? weekRange(dateStr) : monthRange(dateStr));
+    const map = {};
+    for (const o of orders || []) {
+      if (!inRange(o.date, range) || o.status === '已取消') continue;
+      const p = o.platform || '其他';
+      map[p] = map[p] || { orderCount: 0, totalSales: 0, totalProfit: 0 };
+      map[p].orderCount++;
+      map[p].totalSales += Number(o.amount) || 0;
+      map[p].totalProfit += (Number(o.amount) || 0) - (Number(o.cost) || 0);
+    }
+    return map;
+  }
+
   // ---------- 日程到期判断 ----------
   // 返回今日已到期/已过期的未完成日程
   function dueSchedules(schedules, dateStr, timeStr) {
@@ -170,7 +186,7 @@
   return {
     dateToStr, todayStr, nowTime, strToDate, addDays, weekRange, monthRange, inRange,
     planStats, prioritySort, planCalendar, workoutStats, latestMetric,
-    readingStats, focusByDate, businessStats,
+    readingStats, focusByDate, businessStats, platformBreakdown,
     dueSchedules, todaySchedules, genClientId,
     PRIORITIES,
   };

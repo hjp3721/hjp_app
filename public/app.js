@@ -439,10 +439,13 @@
           : empty('还没有客户')}</div>`;
     } else if (businessTab === 'orders') {
       const custOpts = state.business.customers.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
+      const platformOpts = ['亚马逊', '速卖通', 'Shopee', 'Lazada', 'eBay', '淘宝/天猫', '京东', '拼多多', '抖音小店', '其他']
+        .map((p) => `<option>${esc(p)}</option>`).join('');
       body = `<div class="card">
         <div class="card-title">新增订单</div>
         <div class="form-row">
           <div><label>客户</label><select id="oCustomer">${custOpts || '<option value="">（先添加客户）</option>'}</select></div>
+          <div><label>平台</label><select id="oPlatform">${platformOpts}</select></div>
           <div style="flex:2"><label>商品</label><input id="oProduct" placeholder="商品/服务"></div>
           <div><label>金额</label><input type="number" id="oAmount" min="0"></div>
           <div><label>成本</label><input type="number" id="oCost" min="0"></div>
@@ -454,6 +457,7 @@
       <div class="card"><div class="card-title">订单列表</div>
         ${state.business.orders.length ? state.business.orders.slice().sort((a, b) => b.date.localeCompare(a.date)).map((o) => `
           <div class="row"><div class="row-text">${esc(o.date)} · ${esc(custName(o.customerId))} · <b>${esc(o.product)}</b> ¥${esc(o.amount)}
+            <span class="pill pill-lo" style="margin-left:6px">${esc(o.platform || '其他')}</span>
             <span class="pill ${o.status === '已完成' ? 'pill-ok' : o.status === '已取消' ? 'pill-lo' : 'pill-accent'}" style="margin-left:6px">${esc(o.status)}</span></div>
             <button class="btn btn-sm" data-action="order-del" data-id="${esc(o.id)}">删除</button></div>`).join('')
           : empty('还没有订单')}</div>`;
@@ -477,6 +481,7 @@
           : empty('还没有款项记录')}</div>`;
     } else {
       const sel = ['day', 'week', 'month'];
+      const wk = Core.businessStats(state.business.orders, state.business.payments, Core.todayStr(), 'week');
       body = `<div class="card">
         <div class="section-head"><h2>销售统计</h2>
           <select data-action="biz-period" style="width:90px"><option value="day">按日</option><option value="week" selected>按周</option><option value="month">按月</option></select></div>
@@ -486,15 +491,32 @@
           <div class="stat-box"><div class="num">${statsFor(Core.businessStats(state.business.orders, state.business.payments, Core.todayStr(), 'month')).totalSales}</div><div class="lbl">本月销售额</div></div>
         </div>
         <div class="stat-grid" style="margin-top:12px">
-          <div class="stat-box"><div class="num">${statsFor(Core.businessStats(state.business.orders, state.business.payments, Core.todayStr(), 'week')).totalProfit}</div><div class="lbl">本周毛利</div></div>
-          <div class="stat-box"><div class="num">${statsFor(Core.businessStats(state.business.orders, state.business.payments, Core.todayStr(), 'week')).receivable}</div><div class="lbl">本周应收</div></div>
-          <div class="stat-box"><div class="num">${statsFor(Core.businessStats(state.business.orders, state.business.payments, Core.todayStr(), 'week')).received}</div><div class="lbl">本周实收</div></div>
-          <div class="stat-box"><div class="num">${statsFor(Core.businessStats(state.business.orders, state.business.payments, Core.todayStr(), 'week')).unpaid}</div><div class="lbl">未收款</div></div>
-        </div></div>`;
+          <div class="stat-box"><div class="num">${wk.totalProfit}</div><div class="lbl">本周毛利</div></div>
+          <div class="stat-box"><div class="num">${wk.receivable}</div><div class="lbl">本周应收</div></div>
+          <div class="stat-box"><div class="num">${wk.received}</div><div class="lbl">本周实收</div></div>
+          <div class="stat-box"><div class="num">${wk.unpaid}</div><div class="lbl">未收款</div></div>
+        </div></div>
+      ${platformStatHtml()}`;
     }
     return `<div class="tabs">${tabs}</div>${body}`;
   }
   function statsFor(x) { return x || { totalSales: 0, totalProfit: 0, receivable: 0, received: 0, unpaid: 0 }; }
+
+  // 平台分布（本周）：横向条形图 + 明细
+  function platformStatHtml() {
+    const bd = Core.platformBreakdown(state.business.orders, Core.todayStr(), 'week');
+    const rows = Object.keys(bd);
+    if (!rows.length) return '<div class="card"><div class="card-title">平台分布（本周）</div>' + empty('本周还没有订单') + '</div>';
+    const max = Math.max(...rows.map((k) => bd[k].totalSales), 1);
+    return `<div class="card"><div class="card-title">平台分布（本周）</div>
+      <table><thead><tr><th>平台</th><th>订单数</th><th>销售额</th><th>毛利</th></tr></thead><tbody>
+        ${rows.map((k) => `<tr><td><b>${esc(k)}</b></td><td>${bd[k].orderCount}</td><td>¥${bd[k].totalSales}</td><td>¥${bd[k].totalProfit}</td></tr>`).join('')}
+      </tbody></table>
+      <div style="margin-top:12px">${rows.map((k) => `
+        <div style="margin-bottom:6px"><div class="muted" style="display:flex;justify-content:space-between"><span>${esc(k)}</span><span>¥${bd[k].totalSales}</span></div>
+          <div class="progress"><i style="width:${Math.round((bd[k].totalSales / max) * 100)}%;background:var(--accent)"></i></div></div>`).join('')}
+      </div></div>`;
+  }
 
   // ---------- 日程提醒 ----------
   function schedule() {
@@ -807,7 +829,7 @@
     });
   }
   function orderAdd() {
-    const o = { id: Core.genClientId(), customerId: val('oCustomer'), product: val('oProduct').trim(), amount: Number(val('oAmount')) || 0, cost: Number(val('oCost')) || 0, status: val('oStatus'), date: val('oDate'), note: '' };
+    const o = { id: Core.genClientId(), customerId: val('oCustomer'), product: val('oProduct').trim(), amount: Number(val('oAmount')) || 0, cost: Number(val('oCost')) || 0, status: val('oStatus'), date: val('oDate'), note: '', platform: val('oPlatform') || '其他' };
     if (!o.product) return toast('请填写商品', 'err');
     state.business.orders.push(o); saveThen(); render();
   }

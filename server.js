@@ -59,6 +59,7 @@ function serveStatic(res, urlPath) {
     res.writeHead(200, {
       'Content-Type': MIME[ext] || 'application/octet-stream',
       'Content-Length': buf.length,
+      'Cache-Control': 'no-store',
     });
     res.end(buf);
   });

@@ -32,7 +32,7 @@ function fullData() {
     },
     business: {
       customers: [{ id: 'c1', name: '张老板', status: '跟进中', phone: '1380000', remark: '' }],
-      orders: [{ id: 'o1', customerId: 'c1', product: '铝合金', amount: 500, cost: 300, status: '已完成', date: '2026-10-09', note: '' }],
+      orders: [{ id: 'o1', customerId: 'c1', product: '铝合金', amount: 500, cost: 300, status: '已完成', date: '2026-10-09', note: '', platform: '亚马逊' }],
       payments: [{ id: 'pay1', customerId: 'c1', orderId: 'o1', type: '应收', amount: 500, date: '2026-10-09', note: '' }],
     },
     schedules: [{ id: 's1', date: '2026-10-09', time: '15:00', title: '客户回访', note: '', done: false }],
@@ -80,6 +80,9 @@ test('各模块核心计算与 API 数据结合验证（模拟前端渲染输入
   // 业务统计：今日销售额 500、毛利 200
   const bs = core.businessStats(d.business.orders, d.business.payments, '2026-10-09', 'day');
   assert.deepStrictEqual([bs.totalSales, bs.totalProfit], [500, 200]);
+  // 平台分布：订单 platform=亚马逊
+  const pb = core.platformBreakdown(d.business.orders, '2026-10-09', 'day');
+  assert.deepStrictEqual(pb['亚马逊'], { orderCount: 1, totalSales: 500, totalProfit: 200 });
   // 到期日程：15:00 之前 10:30 判断 -> 过期/到期
   const due = core.dueSchedules(d.schedules, '2026-10-09', '10:30');
   assert.strictEqual(due.length, 0);
