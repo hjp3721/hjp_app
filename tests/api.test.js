@@ -42,7 +42,7 @@ test('GET /api/data 返回默认数据', async () => {
     assert.strictEqual(res.status, 200);
     const data = await res.json();
     assert.ok(Array.isArray(data.quickNotes));
-    assert.deepStrictEqual(data.settings, { reminderOn: true });
+    assert.deepStrictEqual(data.settings, { reminderOn: true, theme: 'dark' });
   } finally {
     server.close();
   }
@@ -62,6 +62,19 @@ test('POST /api/data 保存后可 GET 读回', async () => {
     const getRes = await fetch(baseUrl + '/api/data');
     const got = await getRes.json();
     assert.strictEqual(got.quickNotes[0].content, '备忘内容');
+  } finally {
+    server.close();
+  }
+});
+
+test('POST /api/data 保存主题 theme 后可 GET 读回', async () => {
+  const { baseUrl, server } = await boot('themesave');
+  try {
+    const d = defaultData();
+    d.settings.theme = 'light'; // 切到浅色主题
+    await fetch(baseUrl + '/api/data', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(d) });
+    const got = await (await fetch(baseUrl + '/api/data')).json();
+    assert.strictEqual(got.settings.theme, 'light', '浅色主题应被持久化');
   } finally {
     server.close();
   }

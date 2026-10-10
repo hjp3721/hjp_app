@@ -45,8 +45,13 @@
       fitness: { workouts: [], metrics: [], goals: [] },
       reading: { books: [], notes: [], focus: [] },
       business: { customers: [], orders: [], payments: [] },
-      schedules: [], settings: { reminderOn: true },
+      schedules: [], settings: { reminderOn: true, theme: 'dark' },
     };
+  }
+
+  // ---------- 界面主题（深色/浅色） ----------
+  function applyTheme(theme) {
+    document.body.classList.toggle('theme-light', theme === 'light');
   }
 
   // ---------- 通用组件 ----------
@@ -593,6 +598,12 @@
       <table><thead><tr><th>模块</th><th>记录数</th></tr></thead><tbody>
         ${counts.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}
       </tbody></table></div>
+    <div class="card"><div class="card-title">界面主题</div>
+      <div style="display:flex;gap:18px">
+        <label style="display:flex;align-items:center;gap:8px"><input type="radio" name="theme" data-action="theme-set" data-value="dark" ${state.settings.theme !== 'light' ? 'checked' : ''} style="width:auto"> 深色</label>
+        <label style="display:flex;align-items:center;gap:8px"><input type="radio" name="theme" data-action="theme-set" data-value="light" ${state.settings.theme === 'light' ? 'checked' : ''} style="width:auto"> 浅色</label>
+      </div>
+      <div class="muted" style="margin-top:8px">切换界面整体配色（深色为默认）。</div></div>
     <div class="card"><div class="card-title">提醒</div>
       <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" data-action="remind-toggle" ${state.settings.reminderOn ? 'checked' : ''} style="width:auto"> 开启到期日程提醒</label></div>
     <div class="card" style="border-color:var(--danger)"><div class="card-title" style="color:var(--danger)">危险操作</div>
@@ -906,7 +917,7 @@
       onOk: () => {
         if (document.getElementById('clearConfirm').value.trim() !== '清空') { toast('未输入「清空」，已取消', 'err'); return; }
         state = freshData();
-        closeModal(); saveThen(); render();
+        closeModal(); applyTheme('dark'); saveThen(); render();
         toast('全部数据已清空', 'ok');
       },
     });
@@ -930,10 +941,13 @@
     if (el.matches('[data-action="remind-toggle"]')) {
       state.settings.reminderOn = el.checked; saveThen(); updateTopbar();
     }
+    if (el.matches('[data-action="theme-set"]') && el.checked) {
+      state.settings.theme = el.dataset.value; applyTheme(state.settings.theme); saveThen(); render();
+    }
   }
 
   // ---------- 启动 ----------
   window.addEventListener('hashchange', render);
   bindView();
-  loadData().then(() => { render(); updateTopbar(); }).catch((e) => { view.innerHTML = `<div class="card">加载失败：${esc(e.message)}</div>`; });
+  loadData().then(() => { applyTheme(state.settings.theme || 'dark'); render(); updateTopbar(); }).catch((e) => { view.innerHTML = `<div class="card">加载失败：${esc(e.message)}</div>`; });
 })();

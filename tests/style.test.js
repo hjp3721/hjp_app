@@ -33,6 +33,19 @@ test('界面为苹果天气风格：深蓝渐变 + 毛玻璃 + 大圆角', () =>
   assert.ok(!html.includes('class="cloud'), '不应再含动漫云朵元素');
 });
 
+test('浅色主题：body.theme-light 覆盖为清爽浅色 + 苹果蓝', () => {
+  // 浅色主题切换块存在
+  assert.match(css, /body\.theme-light\s*\{/, '应定义浅色主题覆盖块');
+  // 浅色下背景为清爽浅蓝渐变
+  assert.match(css, /body\.theme-light\s*\{[^}]*linear-gradient\(180deg,\s*#eef4fb/, '浅色背景应从 #eef4fb 渐变');
+  // 浅色主强调色改为苹果蓝
+  assert.match(css, /--accent:\s*#0a84ff\s*;/, '浅色主题强调色应为苹果蓝 #0a84ff');
+  // 浅色下文字为深色、输入框配色深
+  assert.match(css, /--text:\s*#1f2937\s*;/, '浅色主题文字应为深色');
+  // 浅色下模块按钮选中文字改为深色
+  assert.match(css, /body\.theme-light \.nav-item\.active \{ color: #05427c; \}/, '浅色下模块选中文字应可读');
+});
+
 test('7 个模块按钮采用不同颜色的透明按钮（适配深色毛玻璃）', () => {
   // 每个模块用不同 rgba 半透明背景（允许 CSS 中的空格，用正则匹配）
   const routes = {

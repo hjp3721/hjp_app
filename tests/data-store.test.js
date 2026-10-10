@@ -29,7 +29,7 @@ test('defaultData 返回完整骨架', () => {
   assert.ok(d.business && Array.isArray(d.business.orders));
   assert.ok(d.business && Array.isArray(d.business.payments));
   assert.ok(Array.isArray(d.schedules));
-  assert.deepStrictEqual(d.settings, { reminderOn: true });
+  assert.deepStrictEqual(d.settings, { reminderOn: true, theme: 'dark' });
 });
 
 test('validateData 接受合法数据', () => {

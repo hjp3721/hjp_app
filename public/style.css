@@ -1,4 +1,5 @@
-/* 个人专属App — 全局样式（苹果天气 App 风格：深蓝渐变 + 毛玻璃，极简清爽） */
+/* 个人专属App — 全局样式（苹果天气 App 风格：深蓝渐变 + 毛玻璃，极简清爽）
+   支持深色（默认）/ 浅色 两种界面主题，由 body.theme-light 切换 */
 :root {
   --bg: #0b1a3a;
   --card: rgba(255, 255, 255, 0.08);
@@ -13,6 +14,25 @@
   --ok: #32d74b;
   --shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
   --radius: 18px;
+  /* 主题相关变量（浅色主题覆盖） */
+  --accent-text: #06172b;
+  --bar-bg: rgba(255, 255, 255, 0.06);
+  --btn-bg: rgba(255, 255, 255, 0.10);
+  --btn-hover-bg: rgba(255, 255, 255, 0.18);
+  --input-bg: rgba(255, 255, 255, 0.10);
+  --placeholder: rgba(242, 245, 250, 0.4);
+  --track: rgba(255, 255, 255, 0.12);
+  --cell-bg: rgba(255, 255, 255, 0.05);
+  --cell-hover-bg: rgba(255, 255, 255, 0.10);
+  --cell-other: rgba(242, 245, 250, 0.3);
+  --th-bg: rgba(255, 255, 255, 0.04);
+  --hover-bg: rgba(255, 255, 255, 0.05);
+  --nav-text: rgba(242, 245, 250, 0.85);
+  --modal-bg: #16294d;
+  --toast-bg: rgba(22, 41, 77, 0.9);
+  --toast-color: #fff;
+  --pill-lo-bg: rgba(255, 255, 255, 0.12);
+  --scheme: dark;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }
@@ -50,7 +70,7 @@ body {
 /* 顶栏（毛玻璃） */
 .topbar {
   height: 52px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--bar-bg);
   backdrop-filter: blur(24px) saturate(160%);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   border-bottom: 1px solid var(--border);
@@ -69,7 +89,7 @@ body {
 /* 布局 */
 .layout { display: flex; height: calc(100vh - 52px); }
 .sidebar {
-  width: 180px; background: rgba(255, 255, 255, 0.06);
+  width: 180px; background: var(--bar-bg);
   backdrop-filter: blur(24px) saturate(160%);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   border-right: 1px solid var(--border);
@@ -78,10 +98,10 @@ body {
 }
 .nav-item {
   display: block; padding: 10px 14px; border-radius: 12px;
-  color: rgba(242, 245, 250, 0.85); text-decoration: none; font-size: 14px;
+  color: var(--nav-text); text-decoration: none; font-size: 14px;
   background: transparent; transition: background .15s;
 }
-.nav-item:hover { background: rgba(255, 255, 255, 0.10); }
+.nav-item:hover { background: var(--btn-hover-bg); }
 .nav-item.active { font-weight: 600; color: #fff; }
 /* 各模块按钮：不同颜色的透明按钮（适配深色毛玻璃） */
 .nav-item[data-route="home"] { background: rgba(77, 184, 255, 0.18); }
@@ -123,12 +143,12 @@ body {
 
 /* 按钮 */
 .btn {
-  border: 1px solid var(--border); background: rgba(255, 255, 255, 0.10); color: var(--text);
+  border: 1px solid var(--border); background: var(--btn-bg); color: var(--text);
   border-radius: 12px; padding: 7px 14px; font-size: 13px; cursor: pointer;
   transition: background .15s;
 }
-.btn:hover { background: rgba(255, 255, 255, 0.18); }
-.btn-primary { background: var(--accent); border-color: var(--accent); color: #06172b; font-weight: 600; }
+.btn:hover { background: var(--btn-hover-bg); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
 .btn-primary:hover { background: #7ccbff; }
 .btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
 .btn-danger:hover { background: #ff6b61; }
@@ -138,11 +158,11 @@ body {
 input, select, textarea {
   width: 100%; padding: 8px 10px; border: 1px solid var(--border);
   border-radius: 12px; font-size: 13px; font-family: inherit; color: var(--text);
-  background: rgba(255, 255, 255, 0.10);
-  color-scheme: dark;
+  background: var(--input-bg);
+  color-scheme: var(--scheme);
 }
 input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
-input::placeholder, textarea::placeholder { color: rgba(242, 245, 250, 0.4); }
+input::placeholder, textarea::placeholder { color: var(--placeholder); }
 label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
 .form-row { display: flex; gap: 10px; flex-wrap: wrap; }
 .form-row > div { flex: 1; min-width: 120px; }
@@ -151,8 +171,8 @@ label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px
 /* 表格 */
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
-th { color: var(--muted); font-weight: 600; background: rgba(255, 255, 255, 0.04); }
-tr:hover td { background: rgba(255, 255, 255, 0.05); }
+th { color: var(--muted); font-weight: 600; background: var(--th-bg); }
+tr:hover td { background: var(--hover-bg); }
 
 /* 列表行 */
 .row {
@@ -165,7 +185,7 @@ tr:hover td { background: rgba(255, 255, 255, 0.05); }
 .pill { padding: 2px 9px; border-radius: 20px; font-size: 12px; white-space: nowrap; }
 .pill-hi { background: var(--danger-soft); color: var(--danger); }
 .pill-mid { background: rgba(255, 159, 10, 0.18); color: #ffc04d; }
-.pill-lo { background: rgba(255, 255, 255, 0.12); color: var(--muted); }
+.pill-lo { background: var(--pill-lo-bg); color: var(--muted); }
 .pill-ok { background: rgba(50, 215, 75, 0.16); color: var(--ok); }
 .pill-accent { background: var(--accent-soft); color: var(--accent); }
 
@@ -180,7 +200,7 @@ tr:hover td { background: rgba(255, 255, 255, 0.05); }
 .stat-box .lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
 /* 进度条 */
-.progress { height: 8px; background: rgba(255, 255, 255, 0.12); border-radius: 20px; overflow: hidden; }
+.progress { height: 8px; background: var(--track); border-radius: 20px; overflow: hidden; }
 .progress > i { display: block; height: 100%; background: var(--accent); border-radius: 20px; }
 
 /* 首页 */
@@ -218,10 +238,10 @@ tr:hover td { background: rgba(255, 255, 255, 0.05); }
 .cal-head { text-align: center; color: var(--muted); font-size: 12px; padding: 6px 0; }
 .cal-cell {
   border: 1px solid var(--border); border-radius: 12px; min-height: 56px; padding: 4px;
-  font-size: 12px; cursor: pointer; background: rgba(255, 255, 255, 0.05); position: relative;
+  font-size: 12px; cursor: pointer; background: var(--cell-bg); position: relative;
 }
-.cal-cell:hover { border-color: var(--accent); background: rgba(255, 255, 255, 0.10); }
-.cal-cell.other { color: rgba(242, 245, 250, 0.3); background: transparent; }
+.cal-cell:hover { border-color: var(--accent); background: var(--cell-hover-bg); }
+.cal-cell.other { color: var(--cell-other); background: transparent; }
 .cal-cell.today { border-color: var(--accent); }
 .cal-cell.selected { background: var(--accent-soft); }
 .cal-cell .d { font-weight: 600; }
@@ -242,7 +262,7 @@ tr:hover td { background: rgba(255, 255, 255, 0.05); }
   display: flex; align-items: center; justify-content: center; z-index: 100;
 }
 .modal {
-  background: #16294d; border: 1px solid var(--border);
+  background: var(--modal-bg); border: 1px solid var(--border);
   border-radius: 18px; width: 480px; max-width: 92vw;
   max-height: 88vh; overflow-y: auto; padding: 20px 22px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
 }
@@ -252,7 +272,7 @@ tr:hover td { background: rgba(255, 255, 255, 0.05); }
 /* toast */
 .toast-container { position: fixed; top: 64px; left: 50%; transform: translateX(-50%); z-index: 200; display: flex; flex-direction: column; gap: 8px; }
 .toast {
-  background: rgba(22, 41, 77, 0.9); color: #fff; padding: 10px 18px; border-radius: 12px;
+  background: var(--toast-bg); color: var(--toast-color); padding: 10px 18px; border-radius: 12px;
   font-size: 13px; box-shadow: var(--shadow); animation: fadein .2s;
   border: 1px solid var(--border); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
 }
@@ -267,3 +287,53 @@ tr:hover td { background: rgba(255, 255, 255, 0.05); }
 .note { color: var(--muted); font-size: 12px; }
 .hidden { display: none !important; }
 .center { text-align: center; }
+
+/* ---- 浅色主题（苹果天气浅色版：清爽浅蓝白 + 毛玻璃半透明） ---- */
+body.theme-light {
+  --bg: #eef4fb;
+  --card: rgba(255, 255, 255, 0.6);
+  --card-strong: rgba(255, 255, 255, 0.82);
+  --border: rgba(15, 42, 80, 0.12);
+  --text: #1f2937;
+  --muted: rgba(31, 41, 55, 0.58);
+  --accent: #0a84ff;
+  --accent-soft: rgba(10, 132, 255, 0.10);
+  --danger: #e03e2f;
+  --danger-soft: rgba(255, 69, 58, 0.08);
+  --ok: #1f9d3a;
+  --shadow: 0 8px 28px rgba(0, 40, 120, 0.12);
+  --accent-text: #ffffff;
+  --bar-bg: rgba(255, 255, 255, 0.55);
+  --btn-bg: rgba(15, 42, 80, 0.05);
+  --btn-hover-bg: rgba(15, 42, 80, 0.10);
+  --input-bg: rgba(255, 255, 255, 0.85);
+  --placeholder: rgba(31, 41, 55, 0.4);
+  --track: rgba(15, 42, 80, 0.12);
+  --cell-bg: rgba(255, 255, 255, 0.5);
+  --cell-hover-bg: rgba(255, 255, 255, 0.8);
+  --cell-other: rgba(15, 42, 80, 0.25);
+  --th-bg: rgba(15, 42, 80, 0.05);
+  --hover-bg: rgba(15, 42, 80, 0.06);
+  --nav-text: rgba(15, 42, 80, 0.82);
+  --modal-bg: #ffffff;
+  --toast-bg: rgba(255, 255, 255, 0.94);
+  --toast-color: #1f2937;
+  --pill-lo-bg: rgba(15, 42, 80, 0.08);
+  --scheme: light;
+  background:
+    radial-gradient(130% 90% at 50% -18%, #e9f2ff 0%, rgba(233, 242, 255, 0) 58%),
+    radial-gradient(120% 80% at 20% 120%, #dcebfd 0%, rgba(220, 235, 253, 0) 55%),
+    linear-gradient(180deg, #eef4fb 0%, #e6f0fb 48%, #dceaf9 100%);
+  color: var(--text);
+}
+/* 浅色下模块选中文字改为深色（保证可读） */
+body.theme-light .nav-item.active { color: #05427c; }
+/* 浅色下背景光晕与山丘更淡、日历完成点边框更亮 */
+body.theme-light .anime-bg .glow { opacity: .7; }
+body.theme-light .anime-bg .hills {
+  background:
+    radial-gradient(120% 100% at 0% 100%, rgba(120, 180, 230, 0.16) 0%, rgba(120, 180, 230, 0) 55%),
+    radial-gradient(120% 100% at 100% 100%, rgba(110, 160, 220, 0.14) 0%, rgba(110, 160, 220, 0) 52%),
+    linear-gradient(180deg, transparent, rgba(120, 170, 225, 0.12));
+}
+body.theme-light .pcal-dot { border-color: rgba(255, 255, 255, 0.7); }
