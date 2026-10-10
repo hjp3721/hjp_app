@@ -1,7 +1,6 @@
-/* 个人专属App — 全局样式（清新绿色风格，非紫色系） */
+/* 个人专属App — 全局样式（动漫清新风格，非紫色系） */
 :root {
-  --bg: #ecf7ee;          /* 清新浅绿背景 */
-  --bg-grad: linear-gradient(160deg, #ecf7ee 0%, #dff0e3 100%);
+  --bg: #eaf7ef;          /* 兜底浅绿 */
   --card: #ffffff;
   --border: #dce9df;
   --text: #1f2937;
@@ -18,10 +17,49 @@
 html, body { height: 100%; margin: 0; }
 body {
   font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
-  background: var(--bg-grad);
+  /* 动漫天空：淡蓝 → 青绿 → 浅绿地面，明快清新 */
+  background:
+    radial-gradient(1200px 820px at 82% -12%, rgba(255,255,255,.55), transparent 60%),
+    radial-gradient(1000px 720px at 6% 16%, rgba(255,255,255,.4), transparent 55%),
+    linear-gradient(180deg, #cde8ff 0%, #dcf3e8 52%, #cbeeda 100%);
   color: var(--text);
   font-size: 14px;
 }
+
+/* ---- 动漫背景层（覆盖整个界面） ---- */
+.anime-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.anime-bg .cloud {
+  position: absolute; border-radius: 999px;
+  background: radial-gradient(closest-side, rgba(255,255,255,.85), rgba(255,255,255,.35));
+  filter: blur(1px);
+  animation: cloud-drift 70s linear infinite;
+}
+.anime-bg .cloud::before {
+  content: ''; position: absolute; width: 62%; height: 150%;
+  border-radius: 50%; background: inherit; top: -55%; left: 8%;
+}
+.anime-bg .c1 { width: 180px; height: 60px; top: 12%; left: -200px; animation-duration: 80s; }
+.anime-bg .c2 { width: 130px; height: 44px; top: 26%; left: -160px; animation-duration: 95s; animation-delay: -30s; opacity:.8; }
+.anime-bg .c3 { width: 100px; height: 34px; top: 40%; left: -140px; animation-duration: 110s; animation-delay: -60s; opacity:.65; }
+.anime-bg .glow {
+  position: absolute; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.4), rgba(255,255,255,0) 70%);
+}
+.anime-bg .g1 { width: 380px; height: 380px; top: -80px; right: 8%; }
+.anime-bg .g2 { width: 300px; height: 300px; bottom: 6%; left: 4%; background: radial-gradient(circle, rgba(214,255,226,.6), rgba(214,255,226,0) 70%); }
+.anime-bg .hills {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 150px;
+  background:
+    radial-gradient(120% 100% at 0% 100%, rgba(126,211,140,.5) 0%, rgba(126,211,140,0) 55%),
+    radial-gradient(120% 100% at 100% 100%, rgba(74,178,120,.4) 0%, rgba(74,180,120,0) 52%),
+    linear-gradient(180deg, transparent, rgba(134,214,152,.28));
+}
+@keyframes cloud-drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(130vw); }
+}
+/* 让内容浮于背景之上 */
+.layout { position: relative; z-index: 1; }
 
 /* 顶栏 */
 .topbar {
