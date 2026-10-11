@@ -1,0 +1,18 @@
+# 个人数据（含隐私内容，不上传 GitHub）
+data/
+
+# 依赖
+node_modules/
+
+# 数据写入的临时文件与损坏备份
+*.tmp
+*.corrupt.*
+
+# 系统/资源管理器文件
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# 编辑器配置
+.vscode/
+.idea/
